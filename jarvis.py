@@ -61,11 +61,25 @@ tts = AsyncTTS()                              # Async text-to-speech engine
 # HTTP session for reusing connections (improves performance by pooling connections)
 session = requests.Session()
 
+# --- Environment Variable Validation ------------------------------------
+REQUIRED_ENV_VARS = ["GUILD_ID", "USER_ID", "VOICE_CHANNEL_ID", "PORCUPINE_KEY"]
+
+def validate_required_env_vars():
+    """Ensure all required environment variables are present."""
+    missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
+    if missing:
+        for var in missing:
+            console_ui.print_error(f"ERROR: The {var} environment variable is not set.")
+        raise RuntimeError("Missing required environment variables.")
+
 # Music bot configuration from environment
 guild_id = os.getenv("GUILD_ID")             # Discord server ID
 user_id = os.getenv("USER_ID")               # User's Discord ID
 voice_channel_id = os.getenv("VOICE_CHANNEL_ID")  # Target voice channel
 music_bot_base_url = os.getenv("MUSIC_BOT_URL")
+
+# Validate presence of all required variables
+validate_required_env_vars()
 
 # Add a check for music_bot_base_url
 if music_bot_base_url is None:

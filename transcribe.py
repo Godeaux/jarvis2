@@ -48,7 +48,15 @@ _spinner_thread = threading.Thread(target=_spinner_worker, args=(_model_load_eve
 _spinner_thread.start()
 
 # Initialize Vosk components (done once at module load for performance)
-model = Model("model")  # Loads the speech recognition model from the 'model' directory.
+model_path = "model"
+if not os.path.isdir(model_path):
+    console_ui.print_error(f"Vosk model directory '{model_path}' not found.")
+    console_ui.print_error("Please download a model and extract it into this folder.")
+    _model_load_event.set()
+    _spinner_thread.join()
+    raise RuntimeError("Missing Vosk model directory.")
+
+model = Model(model_path)  # Loads the speech recognition model from the 'model' directory.
                         # This can be memory-intensive and take time on first load.
 rec = KaldiRecognizer(model, RATE)  # Creates a recognizer instance, configured for the model and sample rate.
                                     # This object will be used for all subsequent transcriptions.
